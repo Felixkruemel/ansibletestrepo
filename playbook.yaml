@@ -1,0 +1,68 @@
+- hosts: haproxies
+  tasks:
+    - name: Updating sources.list...
+      become: true
+      apt:
+        update_cache: yes
+
+    - name: Installing latest haproxy...
+      become: true
+      package:
+       name: "haproxy"
+       state: latest
+
+    - name: Configuring haproxy...
+      become: true
+      template: 
+        src: haproxy.cfg
+        dest: "/etc/haproxy/haproxy.cfg"
+
+    - name: Installing latest Keepalived...
+      become: true
+      package:
+        name: "keepalived"
+        state: latest
+
+- hosts: haproxymaster
+  tasks:
+    - name: Configuring Keepalived on Master...
+      become: true
+      template:
+        src: keepalived_master.conf
+        dest: "/etc/keepalived/keepalived.conf"
+
+- hosts: haproxyslaves
+  tasks:
+    - name: Configuring Keepalived on Master...
+      become: true
+      template:
+        src: keepalived_slaves.conf
+        dest: "/etc/keepalived/keepalived.conf"
+
+
+- hosts: webservers
+  tasks:
+    
+    - name: Test
+      vars:
+        ipv4: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+      debug:
+        msg: " {{ ipv4 }} "
+
+    - name: Updating sources.list...
+      become: true
+      apt:
+        update_cache: yes
+
+    - name: Installing latest Apache...
+      become: true
+      package:
+       name: "apache2"
+       state: latest
+
+    - name: Creating default page...
+      become: true
+      template:
+       src: index.html.j2
+       dest: "{{ apache_root }}/index.html"
+      register: indexfile 

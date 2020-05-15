@@ -1,0 +1,32 @@
+---
+all:
+ hosts:
+  webserver1:
+   ansible_host: 192.168.0.180
+  webserver2:
+   ansible_host: 192.168.0.125
+  webserver3:
+   ansible_host: 192.168.0.212
+  webserver4:
+   ansible_host: 192.168.0.229
+  haproxy1:
+   ansible_host: 192.168.0.140
+  haproxy2:
+   ansible_host: 192.168.0.191
+ children:
+  webservers:
+   hosts:
+    webserver1:
+    webserver2:
+    webserver3:
+    webserver4:
+  haproxies:
+   hosts:
+    haproxy1:
+    haproxy2:
+  haproxymaster:
+   hosts:
+    haproxy1:
+  haproxyslaves:
+   hosts:
+    haproxy2:
